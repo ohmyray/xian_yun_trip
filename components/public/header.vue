@@ -25,11 +25,38 @@
       </el-row>
 
       <!-- 登录/用户信息 -->
-      <el-row>
+      <el-row type="flex"
+              align="middle">
+
+        <!-- 已经登录 -->
+        <el-dropdown v-if="$store.state.user.userInfo['token'] !== ''">
+          <el-row type="flex"
+                  align="middle"
+                  class="el-dropdown-link">
+            <nuxt-link to="#">
+              <img :src="$axios.defaults.baseURL + $store.state.user.userInfo['user'].defaultAvatar"
+                   class="user-icon" />
+              {{$store.state.user.userInfo['user'].nickname}}
+            </nuxt-link>
+            <i class="el-icon-caret-bottom el-icon--right"></i>
+          </el-row>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <nuxt-link to="#">个人中心</nuxt-link>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <div @click="handleLogout">退出</div>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
+        <!-- 未登录 -->
         <nuxt-link to="/user/login"
+                   v-else
                    class="account">
           登录/注册
         </nuxt-link>
+
       </el-row>
 
     </el-row>
@@ -41,6 +68,12 @@ export default {
   data () {
     return {
       active: 'active'
+    }
+  },
+  methods: {
+    handleLogout () {
+      this.$store.commit('user/setUserInfo', { token: '', user: {} })
+      this.$router.push({ path: '/' })
     }
   }
 }
@@ -88,6 +121,12 @@ export default {
         text-decoration: underline;
       }
     }
+  }
+  .user-icon {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+    border-radius: 50%;
   }
 }
 </style>
