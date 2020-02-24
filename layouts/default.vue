@@ -1,14 +1,25 @@
 <template>
   <div>
+    <!-- 公共页首 -->
+    <Header />
+    <!-- 组件入口 -->
     <nuxt />
+    <!-- 公共页尾 -->
+    <Footer />
   </div>
 </template>
 
 <script>
+import Header from '@/components/public/header'
+import Footer from '@/components/public/footer'
 export default {
-
+  components: {
+    Header,
+    Footer
+  }
 }
 </script>
+
 <style lang="less">
 // 项目公用的样式
 html {
