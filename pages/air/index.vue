@@ -1,6 +1,6 @@
 <template>
-  <div class="index">
-    index
+  <div class="air">
+    air
   </div>
 </template>
 
