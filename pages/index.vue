@@ -4,9 +4,9 @@
     <el-carousel :interval="5000"
                  arrow="always"
                  style="height: 100%; ">
-      <el-carousel-item v-for="(item, key) in bgc"
+      <el-carousel-item v-for="(item, key) in banners"
                         :key="key"
-                        :style="`background: url(${item.src}) center center no-repeat;`">
+                        :style="`background: url(${item.banners}) center center no-repeat;`">
       </el-carousel-item>
     </el-carousel>
   </div>
@@ -16,11 +16,27 @@
 export default {
   data () {
     return {
-      bgc: [
+      // 轮播图数据
+      banners: [
         { src: 'http://157.122.54.189:9095/assets/images/th01.jfif' },
         { src: 'http://157.122.54.189:9095/assets/images/th02.jfif' },
         { src: 'http://157.122.54.189:9095/assets/images/th03.jfif' }
       ]
+    }
+  }, // data END
+  mounted () {
+    // this.$axios({
+    //   url: '/scenics/banners'
+    // }).then(({ data: res }) => {
+    //   console.log(res)
+    // })
+    this.getBanners()
+  },
+  methods: {
+    getBanners () {
+      // this.$store.dispatch('index/getBanners').then(res => console.log(res))
+      this.$store.dispatch('user/getBanners', this.id)
+
     }
   }
 }
