@@ -2,7 +2,14 @@ export const state = () => ({
   /**
    * 轮播图数据
    */
-  banners: []
+  banners: [],
+  /**
+   * 用户信息
+   */
+  userInfo: {
+    token: '',
+    user:{}
+  }
 })
 
 export const mutations =  {
@@ -13,6 +20,10 @@ export const mutations =  {
    */
   setBanners(state, data) {
     state.banners = data
+  },
+
+  setUserInfo(state, user){
+    state.userInfo = user
   }
 }
 
@@ -25,6 +36,18 @@ export const actions = {
       url: '/scenics/banners'
     }).then(({data: res}) => {
       commit('setBanners',res.data)
+      return res
+    })
+  },
+
+  login({commit}, userForm){
+    return this.$axios({
+      method: 'POST',
+      url: '/accounts/login',
+      data: userForm
+    }).then(({data: res}) => {
+      // console.log(res)
+      commit('setUserInfo', res)
       return res
     })
   }
