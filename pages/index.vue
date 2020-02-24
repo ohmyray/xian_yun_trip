@@ -92,7 +92,12 @@ export default {
       }
       this.currentOption = index
     },
-    handleSearch () { }
+    // 通过 currentOption 拿到当前的 option 获得路径，将所需要传递的(所需要搜索的参数)拼接。
+    // 通过 $router.push 方法请求后台数据并跳转页面
+    handleSearch () {
+      let option = this.options[this.currentOption]
+      this.$router.push({ path: `${option.pageUrl + this.searchValue}` })
+    }
   } // methods END
 
 }
