@@ -17,7 +17,8 @@
       <!-- 导航栏 -->
       <el-row type="flex"
               class="navs">
-        <nuxt-link to="/">首页</nuxt-link>
+        <nuxt-link to="/"
+                   :class="active">首页</nuxt-link>
         <nuxt-link to="/post">旅游攻略</nuxt-link>
         <nuxt-link to="/hotel">酒店</nuxt-link>
         <nuxt-link to="/air">国内机票</nuxt-link>
@@ -37,7 +38,11 @@
 
 <script>
 export default {
-  data () { return {} }
+  data () {
+    return {
+      active: 'active'
+    }
+  }
 }
 </script>
 
@@ -69,14 +74,18 @@ export default {
         height: 60px;
         box-sizing: border-box;
       }
+      /deep/ .nuxt-link-exact-active {
+        background: #409eff;
+        color: #fff !important;
+      }
     }
     .account {
       color: #666;
+      margin-left: 10px;
       font-size: 14px;
       &:hover {
-        text-decoration: underline;
         color: #409eff;
-        cursor: pointer;
+        text-decoration: underline;
       }
     }
   }
