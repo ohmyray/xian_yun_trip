@@ -74,7 +74,6 @@ export default {
   mounted () {
     // 判断是否请求过 banners ，若是请求过则使用本地地址。减轻服务器压力
     setTimeout(() => {
-      console.log(this.$store.state.user.banners.length)
       this.$store.state.user.banners.length !== 0 ? (this.banners = this.$store.state.user.banners) : this.getBanners()
     }, 100)
   }, // mounted END
