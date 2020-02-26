@@ -40,6 +40,11 @@ export const actions = {
     })
   },
 
+  /**
+   * 用户登录
+   * @param {*} store
+   * @param {*} userForm 用户名密码数据
+   */
   login({commit}, userForm){
     return this.$axios({
       method: 'POST',
@@ -48,6 +53,21 @@ export const actions = {
     }).then(({data: res}) => {
       // console.log(res)
       commit('setUserInfo', res)
+      return res
+    })
+  },
+
+  /**
+   * 获取手机验证码
+   * @param {*} store
+   * @param {object} tel { tel:username }
+   */
+  captcha(store, tel){
+    return this.$axios({
+      method: 'POST',
+      url: '/captchas',
+      data: tel
+    }).then(({data:res}) => {
       return res
     })
   }
