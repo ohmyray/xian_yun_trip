@@ -70,5 +70,22 @@ export const actions = {
     }).then(({data:res}) => {
       return res
     })
+  },
+
+  /**
+   * 注册账号
+   * @param {*} param0 store.commit
+   * @param {object} userInfoFormData data
+   */
+  register({commit}, userInfoFormData) {
+    return this.$axios({
+      method: 'POST',
+      url: '/accounts/register',
+      data: userInfoFormData
+    }).then(({data: res}) => {
+      // 在这里我们可以讲拿到的数据通过 mutation 存储至 state 这样我们就可以实现自动登录了
+      commit('setUserInfo', res)
+      return res
+    })
   }
 }

@@ -67,7 +67,7 @@ export default {
     const validateUsername = (rule, value, callback) => {
       if (value == "") {
         callback(new Error("请再次手机号码"));
-      } else if (/^ 1[3 - 9][0 - 9]{ 9 } $ /.test(value) == false) { // 判断是否是手机号码的正则
+      } else if (/^1[3-9][0-9]{9}$/.test(value) == false) { // 判断是否是手机号码的正则
         callback(new Error("手机号码格式错误"))
       } else {
         callback()
@@ -106,13 +106,15 @@ export default {
     return {
       // 控制发送验证按钮是否禁用
       sendCaptcha: false,
+      // 是否成功获取过验证码
+      hasSendCaptcha: false,
       // 表单数据
       form: {
-        username: '', // 用户名
-        nickname: '', // 昵称
-        captcha: '', // 验证码
-        password: '', // 密码
-        checkPassword: '' // 确认密码
+        username: '13178966666', // 用户名
+        nickname: '123', // 昵称
+        captcha: '000000', // 验证码
+        password: '123456', // 密码
+        checkPassword: '123456' // 确认密码
       },
       // 表单规则
       formRules: {
@@ -150,16 +152,41 @@ export default {
           this.$message({
             message: `恭喜你，这是成功获取验证码:${res.code}`,
             type: 'success'
-          });
+          })
+          // 成功获取验证码标识改变
+          return this.hasSendCaptcha = !this.hasSendCaptcha
         })
     },
 
     // 注册
     handleRegSubmit () {
-      let { checkPassword, ...data } = this.form
-      console.log(data)
+      this.$refs['form'].validate((valid) => {
+        // 用户没有获取验证码 所以不应当以表单校验通过 应让其先获取验证码 减轻后台API服务器的压力
+        if (!this.hasSendCaptcha) return this.$message.error('请先获取验证码yo~')
+        // 用户填写的信息 未通过 form 表单规则校验
+        if (!valid) return this.$message.error('填写有误yo~')
+        // 通过校验 提交用户填写的表单数据
+        // 但是后台所需要的 数据格式中没有 checkPassword 一项
+        // 我们可以通过结构赋值来改造数据
+        let { checkPassword, ...data } = this.form
+        console.log(data)
+        this.$store.dispatch('user/register', data).then(() => {
+          // 若是 then 方法只有一种可能性了
+          // => 注册成功了
+          // 此时我们可以跳转页面至首页或者从哪里来的回哪里去
+          // 当我们登录成功的时候最好就自动登录了
+          // 省了用户的时间 用户才能更快的下单 购物啦
+          // => 提示用户，注册成功啦，跳转页面
+          this.$message.success("恭喜~ 注册成功yo~")
+          // 为了让上面的提示能被用户看到
+          setTimeout(() => {
+            this.$router.go(-1) // 跳转回去
+          }, 1000)
+        })
+
+      })
     }
-  },
+  }, // methods END
   computed: {
     // 通过 username 长度计算是否可以发送验证码了
     nowSend () {
