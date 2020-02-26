@@ -169,7 +169,6 @@ export default {
         // 但是后台所需要的 数据格式中没有 checkPassword 一项
         // 我们可以通过结构赋值来改造数据
         let { checkPassword, ...data } = this.form
-        console.log(data)
         this.$store.dispatch('user/register', data).then(() => {
           // 若是 then 方法只有一种可能性了
           // => 注册成功了
