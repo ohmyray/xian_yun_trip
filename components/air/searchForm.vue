@@ -18,23 +18,37 @@
       <el-form-item label="出发城市">
         <!-- fetch-suggestions 返回输入建议的方法 -->
         <!-- select 点击选中建议项时触发 -->
-        <el-autocomplete :fetch-suggestions="queryDepartSearch"
-                         placeholder="请搜索出发城市"
+        <el-autocomplete v-model.trim="queryString.departCity"
+                         :fetch-suggestions="queryDepartSearch"
                          @select="handleDepartSelect"
-                         class="el-autocomplete"></el-autocomplete>
+                         @blur="handleDepartBlur"
+                         placeholder="请搜索出发城市"
+                         class="el-autocomplete">
+          <template slot-scope="{ item }">
+            <div class="name">{{ item.name }}</div>
+          </template>
+        </el-autocomplete>
       </el-form-item>
       <el-form-item label="到达城市">
-        <el-autocomplete :fetch-suggestions="queryDestSearch"
-                         placeholder="请搜索到达城市"
+        <el-autocomplete v-model.trim="queryString.destCity"
+                         :fetch-suggestions="queryDestSearch"
                          @select="handleDestSelect"
-                         class="el-autocomplete"></el-autocomplete>
+                         @blur="handleDestBlur"
+                         placeholder="请搜索到达城市"
+                         class="el-autocomplete">
+          <template slot-scope="{ item }">
+            <div class="name">{{ item.name }}</div>
+          </template></el-autocomplete>
       </el-form-item>
       <el-form-item label="出发时间">
         <!-- change 用户确认选择日期时触发 -->
         <el-date-picker type="date"
+                        v-model="queryString.departDate"
+                        ref="departDateRef"
                         placeholder="请选择日期"
                         style="width: 100%;"
-                        @change="handleDate">
+                        @change="handleDate"
+                        :picker-options="pickerOptions">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="">
@@ -56,67 +70,147 @@
 export default {
   data () {
     return {
-      tabs: [
+      tabs: [ // 标签页 配置
         { icon: "iconfont icondancheng", name: "单程" },
         { icon: "iconfont iconshuangxiang", name: "往返" }
       ],
-      currentTab: 0,
+      currentTab: 0, // 当前激活标签
+      queryList: [],
+      queryString: { // 表单的字段
+        departCity: "",
+        departCode: "",
+        destCity: "",
+        destCode: "",
+        departDate: ""
+      },
+      // 日期可选配置
+      pickerOptions: {
+        // 如果返回true表示可选
+        disabledDate (time) {
+          return time.getTime() + 3600 * 1000 * 24 < Date.now();
+        },
+      }
     }
-  },
+  }, // data END
   methods: {
     // tab切换时触发
-    handleSearchTab (item, index) {
+    handleSearchTab (item, index) { },
 
+    // 根据输入的城市名访问接口，拿到所需的数据
+    querySearch (cityName) {
+      return this.$axios({
+        url: '/airs/city',
+        params: {
+          name: cityName
+        }
+      }).then(({ data: res }) => {
+        return res.data.map(val => {
+          // 数据改造，将所有地名带市的都去掉
+          val.name = val.name.replace('市', '')
+          return val
+        })
+      })
     },
 
     // 出发城市输入框获得焦点时触发
     // value 是选中的值，cb是回调函数，接收要展示的列表
     queryDepartSearch (value, cb) {
-      cb([
-        { value: 1 },
-        { value: 2 },
-        { value: 3 },
-      ]);
+      // 若输入的城市不为空，则执行后面查询
+      if (!!value) {
+        let res = this.querySearch(value).then(res => {
+          this.queryList = res
+          return cb(res)
+        })
+      }
+      // 若输入框的数据为空的话
+      this.queryList = []
+      cb([])
     },
 
     // 目标城市输入框获得焦点时触发
-    // value 是选中的值，cb是回调函数，接收要展示的列表
     queryDestSearch (value, cb) {
-      cb([
-        { value: 1 },
-        { value: 2 },
-        { value: 3 },
-      ]);
+      if (!!value) {
+        let res = this.querySearch(value).then(res => {
+          this.queryList = res
+          return cb(res)
+        })
+      }
+      this.queryList = []
+      cb([])
     },
 
     // 出发城市下拉选择时触发
     handleDepartSelect (item) {
+      // item 下拉时被单击选择的项
+      this.queryString.departCity = item.name
+      this.queryString.departCode = item.code
 
     },
 
     // 目标城市下拉选择时触发
     handleDestSelect (item) {
+      this.queryString.destCity = item.name
+      this.queryString.destCode = item.code
+    },
+
+    // 处理出发城市失去焦点
+    handleDepartBlur () {
+      // 当数据没有的时候 为空了, 不为空可以让其自动选择第一项
+      if (this.queryList.length !== 0) {
+        this.queryString.departCity = this.queryList[0].name
+        this.queryString.departCode = this.queryList[0].code
+        return false
+      }
+      this.queryString.departCity = ''
+      this.queryString.departCode = ''
+
+    },
+
+    // 处理目标城市失去焦点
+    handleDestBlur () {
+      if (this.queryList.length !== 0) {
+        this.queryString.destCity = this.queryList[0].name
+        this.queryString.destCode = this.queryList[0].code
+        return false
+      }
+      this.queryString.destCity = ''
+      this.queryString.destCode = ''
 
     },
 
     // 确认选择日期时触发
     handleDate (value) {
-
+      this.queryString.departDate = this.$refs.departDateRef.displayValue
     },
 
     // 触发和目标城市切换时触发
     handleReverse () {
 
+      //当出发地和目标地点有一项没选时候
+      // 做交换时候应该提示没选全
+      let { departDate, ...params } = this.queryString
+      for (var key in params) {
+        if (params[key] != '0' && !params[key]) {
+          this.$message.error('请完善数据!')
+          return false
+        }
+      }
+
+      // 交换城市，先解构拿出数据到内存中，不被赋值修改
+      const { departCity, departCode, destCity, destCode } = this.queryString
+
+      this.queryString.departCity = destCity
+      this.queryString.departCode = destCode
+
+      this.queryString.destCity = departCity
+      this.queryString.destCode = departCode
     },
 
     // 提交表单是触发
     handleSubmit () {
 
     }
-  },
-  mounted () {
-
-  }
+  } // methods END
 }
 </script>
 
