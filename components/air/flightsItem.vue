@@ -1,6 +1,6 @@
 <template>
   <div class="flight-item">
-    <div>
+    <div @click="handleShowRecommend">
       <!-- 显示的机票信息 -->
       <el-row type="flex"
               align="middle"
@@ -34,7 +34,8 @@
         </el-col>
       </el-row>
     </div>
-    <div class="flight-recommend">
+    <div class="flight-recommend"
+         v-show="showRecommend">
       <!-- 隐藏的座位信息列表 -->
       <el-row type="flex"
               justify="space-between"
