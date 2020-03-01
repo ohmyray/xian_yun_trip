@@ -208,7 +208,15 @@ export default {
 
     // 提交表单是触发
     handleSubmit () {
-
+      // 判断表单中是否有空值
+      for (var key in this.queryString) {
+        if (this.queryString[key] != '0' && !this.queryString[key]) {
+          this.$message.error('请完善数据!')
+          return false
+        }
+      }
+      // 带查询参数
+      this.$router.push({ path: 'air/flights', query: this.queryString })
     }
   } // methods END
 }
