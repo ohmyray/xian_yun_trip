@@ -33,10 +33,10 @@
           <el-pagination @size-change="handleSizeChange"
                          @current-change="handleCurrentChange"
                          :current-page="pageIndex"
-                         :page-sizes="[5, 10, 15, 20]"
+                         :page-sizes="[5, 10, 15, 20,100]"
                          :page-size="pageSize"
                          layout="total, sizes, prev, pager, next, jumper"
-                         :total="airMap.total">
+                         :total="total">
           </el-pagination>
         </el-row>
       </div>
@@ -60,16 +60,21 @@ export default {
   data () {
     return {
       pageShowList: [],
-      airMap: {},
+      airMap: {
+        info: {},
+        flights: [],
+        options: {}
+      },
       pageIndex: 1, // 当前页数
       pageSize: 5,  // 显示条数
+      total: 0
     }
   },
-
   mounted () {
     this.$store.dispatch('air/findFlights', this.$route.query).then(res => {
       this.airMap = res
-      console.log(this.airMap)
+      console.log(this.airMap.flights)
+      this.total = this.airMap.flights.length
       this.currentPageShowData()
     })
   },
@@ -90,7 +95,7 @@ export default {
       const start = (this.pageIndex - 1) * this.pageSize
       // 从第几条结束
       const end = start + this.pageSize
-      this.pageShowList = this.airMap.flights.splice(start, end)
+      this.pageShowList = this.airMap.flights.slice(start, end)
     }
   }
 }
