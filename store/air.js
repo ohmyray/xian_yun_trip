@@ -19,5 +19,12 @@ export const actions = {
       }).then(({data: res}) => {
         return res
       })
+  },
+  findSale(){
+    return this.$axios({
+      url:'/airs/sale'
+    }).then(({data: res})=>{
+      return res
+    })
   }
 }
