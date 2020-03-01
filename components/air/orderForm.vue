@@ -51,6 +51,7 @@
              v-for="(item, index) in data.insurances"
              :key="index">
           <el-checkbox :label="`${item.type}：￥${item.price}/份×${users.length}  最高赔付${item.compensation}`"
+                       @change="handleInsurance(item.id)"
                        border>
           </el-checkbox>
         </div>
@@ -62,11 +63,12 @@
       <div class="contact">
         <el-form label-width="60px">
           <el-form-item label="姓名">
-            <el-input></el-input>
+            <el-input v-model="contactName"></el-input>
           </el-form-item>
 
           <el-form-item label="手机">
-            <el-input placeholder="请输入内容">
+            <el-input placeholder="请输入内容"
+                      v-model="contactPhone">
               <template slot="append">
                 <el-button @click="handleSendCaptcha">发送验证码</el-button>
               </template>
@@ -74,7 +76,7 @@
           </el-form-item>
 
           <el-form-item label="验证码">
-            <el-input></el-input>
+            <el-input v-model="captcha"></el-input>
           </el-form-item>
         </el-form>
         <el-button type="warning"
@@ -100,7 +102,12 @@ export default {
           username: '',
           id: ''
         }
-      ]
+      ],
+      insurances: [], // 保险数据
+      contactName: "", // 联系人名字
+      contactPhone: "", // 联系人电话
+      captcha: "000000", // 验证码
+      invoice: false   // 发票
     }
   },
   methods: {
@@ -111,18 +118,62 @@ export default {
 
     // 移除乘机人
     handleDeleteUser (index) {
-      this.users.splice(index, 1);
+      this.users.splice(index, 1)
     },
 
     // 发送手机验证码
     handleSendCaptcha () {
+      if (!this.contactPhone) {
+        this.$confirm('手机号码不能为空', '提示', {
+          confirmButtonText: '确定',
+          showCancelButton: false,
+          type: 'warning'
+        })
+        return
+      }
 
+      if (this.contactPhone.length !== 11) {
+        this.$confirm('手机号码格式错误', '提示', {
+          confirmButtonText: '确定',
+          showCancelButton: false,
+          type: 'warning'
+        })
+        return
+      }
+
+      this.$store.dispatch('user/captcha', { tel: this.contactPhone }).then(res => {
+        this.$message.success(`您的验证码为：${res.code}`)
+
+      })
     },
 
     // 提交订单
     handleSubmit () {
+      const orderData = {
+        users: this.users,
+        insurances: this.insurances,
+        contactName: this.contactName,
+        contactPhone: this.contactPhone,
+        invoice: this.invoice,
+        captcha: this.captcha,
+        seat_xid: this.data.seat_infos.seat_xid,
+        air: this.data.id
+      }
 
+      console.log(orderData)
+    },
+    // 选择保险
+    handleInsurance (id) {
+      // 存在则去除
+      if (this.insurances.indexOf(id) > -1) {
+        let arr = this.insurances.slice(0)
+        arr.splice(this.insurances.indexOf(id), 1)
+        this.insurances = arr
+      } else { // 不存在添加到insurances
+        this.insurances = [...new Set([...this.insurances, id])]
+      }
     }
+
   }
 }
 </script>
