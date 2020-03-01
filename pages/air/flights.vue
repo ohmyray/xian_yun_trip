@@ -7,7 +7,8 @@
       <div class="flights-content">
         <!-- 过滤条件 -->
         <div>
-
+          <FlightsFilters :data="airMapBack"
+                          @getData="getData"></FlightsFilters>
         </div>
 
         <!-- 航班头部布局 -->
@@ -17,7 +18,7 @@
 
         <!-- 航班信息 -->
         <div>
-          <FlightsItem v-for="(item,index) of pageShowList"
+          <FlightsItem v-for="(item,index) of showItem"
                        :data="item"
                        :key="index"></FlightsItem>
         </div>
@@ -52,15 +53,22 @@
 <script>
 import FlightsListHead from '@/components/air/flightsListHead'
 import FlightsItem from '@/components/air/flightsItem'
+import FlightsFilters from '@/components/air/flightsFilters'
 export default {
   components: {
     FlightsListHead,
-    FlightsItem
+    FlightsItem,
+    FlightsFilters
   },
   data () {
     return {
       pageShowList: [],
       airMap: {
+        info: {},
+        flights: [],
+        options: {}
+      },
+      airMapBack: {
         info: {},
         flights: [],
         options: {}
@@ -73,29 +81,44 @@ export default {
   mounted () {
     this.$store.dispatch('air/findFlights', this.$route.query).then(res => {
       this.airMap = res
-      console.log(this.airMap.flights)
+      this.airMapBack = { ...res }
+      console.log(this.airMap)
       this.total = this.airMap.flights.length
-      this.currentPageShowData()
     })
+  },
+  computed: {
+    showItem () {
+      if (!this.airMap.flights) {
+        return []
+      }
+      // 从第几页开始
+      const start = (this.pageIndex - 1) * this.pageSize
+      // 从第几条结束
+      const end = start + this.pageSize
+      const arr = this.airMap.flights.slice(start, end)
+
+      return arr
+    }
   },
   methods: {
     // 修改分页大小
     handleSizeChange (pageSize) {
       this.pageIndex = 1
       this.pageSize = pageSize
-      this.currentPageShowData()
     },
     // 显示指定页数据
     handleCurrentChange (pageIndex) {
       this.pageIndex = pageIndex
-      this.currentPageShowData()
     },
-    currentPageShowData () {
-      // 从第几页开始
-      const start = (this.pageIndex - 1) * this.pageSize
-      // 从第几条结束
-      const end = start + this.pageSize
-      this.pageShowList = this.airMap.flights.slice(start, end)
+    getData (val) {
+      console.log(val)
+      if (!this.airMap.flights.length === 0) {
+        this.airMap.flights = []
+        this.pageShowList = []
+        return
+      }
+      this.airMap.flights = val
+      this.total = val.length
     }
   }
 }
