@@ -3,10 +3,13 @@
     <div class="air-column">
       <h2>剩机人</h2>
       <el-form class="member-info">
-        <div class="member-info-item">
+        <div class="member-info-item"
+             v-for="(item, index) in users"
+             :key="index">
 
           <el-form-item label="乘机人类型">
-            <el-input placeholder="姓名"
+            <el-input v-model="item.username"
+                      placeholder="姓名"
                       class="input-with-select">
               <el-select slot="prepend"
                          value="1"
@@ -18,7 +21,8 @@
           </el-form-item>
 
           <el-form-item label="证件类型">
-            <el-input placeholder="证件号码"
+            <el-input v-model="item.id"
+                      placeholder="证件号码"
                       class="input-with-select">
               <el-select slot="prepend"
                          value="1"
@@ -43,8 +47,10 @@
     <div class="air-column">
       <h2>保险</h2>
       <div>
-        <div class="insurance-item">
-          <el-checkbox label="航空意外险：￥30/份×1  最高赔付260万"
+        <div class="insurance-item"
+             v-for="(item, index) in data.insurances"
+             :key="index">
+          <el-checkbox :label="`${item.type}：￥${item.price}/份×${users.length}  最高赔付${item.compensation}`"
                        border>
           </el-checkbox>
         </div>
@@ -81,15 +87,31 @@
 
 <script>
 export default {
+  props: {
+    data: {
+      type: Object,
+      default: () => { }
+    }
+  },
+  data () {
+    return {
+      users: [
+        {
+          username: '',
+          id: ''
+        }
+      ]
+    }
+  },
   methods: {
     // 添加乘机人
     handleAddUsers () {
-
+      this.users.push({ username: this.username, id: this.id })
     },
 
     // 移除乘机人
-    handleDeleteUser () {
-
+    handleDeleteUser (index) {
+      this.users.splice(index, 1);
     },
 
     // 发送手机验证码

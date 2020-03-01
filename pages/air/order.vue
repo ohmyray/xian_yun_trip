@@ -4,7 +4,7 @@
             justify="space-between">
       <!-- 订单表单 -->
       <div class="main">
-        <OrderForm />
+        <OrderForm :data="infoData" />
       </div>
 
       <!-- 侧边栏 -->
@@ -20,6 +20,21 @@ import OrderForm from "@/components/air/orderForm.vue"
 export default {
   components: {
     OrderForm
+  },
+  data () {
+    return {
+      // 机票信息
+      infoData: {
+        insurances: [] // 初始化保险数据
+      }
+    }
+  },
+  mounted () {
+    const { query } = this.$route;
+    this.$store.dispatch('air/findOrder', query).then(res => {
+      console.log(res);
+      this.infoData = res
+    })
   }
 }
 </script>
