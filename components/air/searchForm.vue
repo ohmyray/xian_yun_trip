@@ -215,6 +215,12 @@ export default {
           return false
         }
       }
+
+      // 添加到本地存储
+      const airs = JSON.parse(localStorage.getItem('airs') || `[]`)
+      airs.push(this.queryString)
+      localStorage.setItem("airs", JSON.stringify(airs))
+
       // 带查询参数
       this.$router.push({ path: 'air/flights', query: this.queryString })
     }

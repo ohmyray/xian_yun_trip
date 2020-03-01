@@ -45,6 +45,7 @@
       <!-- 侧边栏 -->
       <div class="aside">
         <!-- 侧边栏组件 -->
+        <FlightsAside></FlightsAside>
       </div>
     </el-row>
   </section>
@@ -54,11 +55,13 @@
 import FlightsListHead from '@/components/air/flightsListHead'
 import FlightsItem from '@/components/air/flightsItem'
 import FlightsFilters from '@/components/air/flightsFilters'
+import FlightsAside from "@/components/air/flightsAside"
 export default {
   components: {
     FlightsListHead,
     FlightsItem,
-    FlightsFilters
+    FlightsFilters,
+    FlightsAside
   },
   data () {
     return {
@@ -79,12 +82,22 @@ export default {
     }
   },
   mounted () {
-    this.$store.dispatch('air/findFlights', this.$route.query).then(res => {
-      this.airMap = res
-      this.airMapBack = { ...res }
-      console.log(this.airMap)
-      this.total = this.airMap.flights.length
-    })
+    this.initData()
+  },
+  // watch: {
+  //   $route () {
+  //     this.getData();
+  //   }
+  // },
+  beforeRouteUpdate (to, from, next) {
+    // 每次url变化时候把pageIndex初始化为1
+    this.pageIndex = 1;
+
+    // 跳转到下一页
+    next();
+
+    // 请求机票列表数据
+    this.initData()
   },
   computed: {
     showItem () {
@@ -101,6 +114,13 @@ export default {
     }
   },
   methods: {
+    initData () {
+      this.$store.dispatch('air/findFlights', this.$route.query).then(res => {
+        this.airMap = res
+        this.airMapBack = { ...res }
+        this.total = this.airMap.flights.length
+      })
+    },
     // 修改分页大小
     handleSizeChange (pageSize) {
       this.pageIndex = 1
@@ -111,7 +131,6 @@ export default {
       this.pageIndex = pageIndex
     },
     getData (val) {
-      console.log(val)
       if (!this.airMap.flights.length === 0) {
         this.airMap.flights = []
         this.pageShowList = []
