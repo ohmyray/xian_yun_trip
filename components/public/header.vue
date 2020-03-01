@@ -106,6 +106,9 @@ export default {
         padding: 0 20px;
         height: 60px;
         box-sizing: border-box;
+        &:hover {
+          border-bottom: 6px solid #409eff;
+        }
       }
       /deep/ .nuxt-link-exact-active {
         background: #409eff;
