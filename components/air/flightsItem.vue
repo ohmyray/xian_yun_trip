@@ -15,7 +15,7 @@
             <el-col :span="8"
                     class="flight-airport">
               <strong>{{data.dep_time}}</strong>
-              <span>{{data.dst_airport_name}}{{data.dst_airport_quay}}</span>
+              <span>{{data.org_airport_name}}{{data.org_airport_quay}}</span>
             </el-col>
             <el-col :span="8"
                     class="flight-time">
@@ -24,7 +24,7 @@
             <el-col :span="8"
                     class="flight-airport">
               <strong>{{data.arr_time}}</strong>
-              <span>{{data.org_airport_name}}{{data.org_airport_quay}}</span>
+              <span>{{data.dst_airport_name}}{{data.dst_airport_quay}}</span>
             </el-col>
           </el-row>
         </el-col>
@@ -45,22 +45,25 @@
           <el-row type="flex"
                   justify="space-between"
                   align="middle"
-                  class="flight-sell">
+                  class="flight-sell"
+                  :key="index"
+                  v-for="(item, index) of data.seat_infos">
             <el-col :span="16"
                     class="flight-sell-left">
-              <span>{{data.seat_infos[0].name}}</span> | {{data.seat_infos[0].supplierName}}
+              <span>{{item.name}}</span> | {{item.supplierName}}
             </el-col>
             <el-col :span="5"
                     class="price">
-              ￥{{data.seat_infos[0].par_price}}
+              ￥{{item.settle_price}}
             </el-col>
             <el-col :span="3"
                     class="choose-button">
               <el-button type="warning"
-                         size="mini">
+                         size="mini"
+                         @click="handleChoose(item)">
                 选定
               </el-button>
-              <p>剩余：{{data.seat_infos[0].discount}}</p>
+              <p>剩余：{{item.discount}}</p>
             </el-col>
           </el-row>
         </el-col>
@@ -109,6 +112,16 @@ export default {
     // 控制推荐列表的展开收起
     handleShowRecommend () {
       this.showRecommend = !this.showRecommend;
+    },
+    // 跳转到订单页面
+    handleChoose (item) {
+      this.$router.push({
+        path: "/air/order",
+        query: {
+          id: this.data.id,
+          seat_xid: item.seat_xid
+        }
+      })
     }
   }
 }
